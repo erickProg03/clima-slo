@@ -1,0 +1,145 @@
+{% extends 'comunidad/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'comunidad/css/clima_comunitario.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="">
+{% endblock %}
+
+{% block content %}
+
+<section class="clima-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+
+                {% if ok %}
+
+                {# ── Card principal ────────────────────────── #}
+                <div class="weather-card">
+
+                    {# ── Header con temperatura ────────────── #}
+                    <div class="weather-header
+                        {% if salud.color == 'danger' %}weather-header--danger
+                        {% elif salud.color == 'warning' %}weather-header--warning
+                        {% else %}weather-header--accent{% endif %}">
+
+                        <h1>{{ ciudad }}</h1>
+                        <p class="coords">
+                            Actualizado: {{ fecha }}&nbsp;|&nbsp;
+                            Lat: {{ latitud }}, Lon: {{ longitud }}
+                        </p>
+
+                        <div class="main-temp">
+                            <img src="https://openweathermap.org/img/wn/{{ icono }}@2x.png"
+                                 alt="{{ descripcion }}">
+                            <h2>{{ temperatura|floatformat:1 }}°</h2>
+                        </div>
+
+                        <p class="weather-description">{{ descripcion }}</p>
+                        <p class="feels-like">
+                            Sensación térmica: <strong>{{ feels_like|floatformat:1 }}°C</strong>
+                        </p>
+                    </div>
+                    {# ── /Header ───────────────────────────── #}
+
+                    <div class="weather-body">
+
+                        {# ── Grid detalles ─────────────────── #}
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <div class="detail-icon">💧</div>
+                                <p>Humedad</p>
+                                <strong>{{ humedad }}%</strong>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-icon">💨</div>
+                                <p>Viento</p>
+                                <strong>{{ viento|floatformat:1 }} km/h</strong>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-icon">🌡️</div>
+                                <p>Presión</p>
+                                <strong>{{ presion }} hPa</strong>
+                            </div>
+                        </div>
+                        {# ── /Grid detalles ────────────────── #}
+
+                        {# ── Calidad del aire ──────────────── #}
+                        <div class="air-quality-box">
+
+                            <div class="section-title">
+                                <span>Calidad del Aire</span>
+                                <span class="risk-badge
+                                    {% if aire.color_clase == 'success' %}risk-badge--bajo
+                                    {% elif aire.color_clase == 'warning' %}risk-badge--moderado
+                                    {% else %}risk-badge--alto{% endif %}">
+                                    {{ aire.estado }}
+                                </span>
+                            </div>
+
+                            <div class="air-stats">
+                                <span class="badge bg-{{ aire.color_clase }}">
+                                    PM2.5: <strong>{{ aire.pm25|floatformat:1 }}</strong> µg/m³
+                                </span>
+                                <span class="badge bg-{{ aire.color_clase }}">
+                                    PM10: <strong>{{ aire.pm10|floatformat:1 }}</strong> µg/m³
+                                </span>
+                            </div>
+
+                            <div class="progress-track" style="--progreso: {{ aire.porcentaje_pm25 }}%;">
+                                <div class="progress-fill progress-fill--{{ aire.color_clase }}"
+                                    style="width: var(--progreso);"></div>
+                            </div>
+
+                            <p class="risk-label">
+                                Nivel de riesgo para la salud:
+                                <strong>{{ salud.nivel_riesgo }}</strong>
+                            </p>
+
+                        </div>
+                        {# ── /Calidad del aire ─────────────── #}
+
+                        {# ── Recomendaciones ───────────────── #}
+                        <div class="recommendations-box
+                            recommendations-box--{{ salud.color }}">
+
+                            <div class="section-title">
+                                🩺 Recomendaciones de Salud
+                            </div>
+
+                            <ul>
+                                {% for consejo in salud.recomendaciones %}
+                                    <li>{{ consejo }}</li>
+                                {% empty %}
+                                    <li>Condiciones ambientales estables. ¡Ten un excelente día!</li>
+                                {% endfor %}
+                            </ul>
+
+                        </div>
+                        {# ── /Recomendaciones ──────────────── #}
+
+                    </div>{# /weather-body #}
+
+                </div>{# /weather-card #}
+                {% include 'comunidad/leyenda_clima.html' %}
+                {% include 'comunidad/mapa_salud.html' %}
+                {% else %}
+
+                {# ── Estado de error ───────────────────────── #}
+                <div class="error-box">
+                    <h2>⚠️ Error de Conexión</h2>
+                    <p>{{ error_msg }}</p>
+                    <p>
+                        <small>Verifica las coordenadas o la configuración de OpenWeather.</small>
+                    </p>
+                </div>
+
+                {% endif %}
+
+            </div>{# /col #}
+        </div>{# /row #}
+    </div>{# /container #}
+</section>
+{% include 'comunidad/footer.html' %}
+{% endblock %}

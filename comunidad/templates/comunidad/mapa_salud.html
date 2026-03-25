@@ -1,0 +1,259 @@
+{% load static %}
+
+<div class="map-card">
+
+    {# ── Cabecera del card ─────────────────────────────────── #}
+    <div class="map-card-header">
+        <div class="map-card-title">
+            <span class="map-card-icon">🗺️</span>
+            <div>
+                <h2 class="map-card-heading">Puntos de Salud Cercanos</h2>
+                <p class="map-card-sub">São Lourenço do Oeste · SC · Brasil</p>
+            </div>
+        </div>
+
+        {# Controles: tipo de mapa + GPS #}
+        <div class="map-controls">
+            <div class="map-layer-btns" role="group" aria-label="Tipo de mapa">
+                <button class="map-layer-btn map-layer-btn--active"
+                        id="btn-satelite"
+                        onclick="setLayer('satelite')"
+                        title="Vista satélite">
+                    🛰️ Satélite
+                </button>
+                <button class="map-layer-btn"
+                        id="btn-calles"
+                        onclick="setLayer('calles')"
+                        title="Vista de calles">
+                    🗺️ Calles
+                </button>
+            </div>
+            <button class="map-gps-btn" onclick="localizarUsuario()" title="Centrar en mi ubicación">
+                🎯 Mi ubicación
+            </button>
+        </div>
+    </div>
+
+    {# ── Leyenda de íconos ─────────────────────────────────── #}
+    <div class="map-legend-strip">
+        <span class="map-legend-item">
+            <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png"
+                 alt="Hospital" class="map-legend-marker"> Hospitales / Clínicas
+        </span>
+        <span class="map-legend-item">
+            <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png"
+                 alt="Farmacia" class="map-legend-marker"> Farmacias
+        </span>
+        <span class="map-legend-item">
+            <span class="map-legend-dot map-legend-dot--user"></span> Tu ubicación
+        </span>
+    </div>
+
+    {# ── Contenedor del mapa Leaflet ───────────────────────── #}
+    <div class="map-wrapper">
+        <div id="mapa-salud"></div>
+
+        {# Spinner mientras carga #}
+        <div class="map-loading" id="map-loading">
+            <div class="map-spinner"></div>
+            <span>Cargando mapa…</span>
+        </div>
+
+        {# Toast de estado GPS #}
+        <div class="map-toast" id="map-toast"></div>
+    </div>
+
+    {# Coordenadas pasadas desde Django #}
+    <input type="hidden" id="map-lat" value="{{ latitud }}">
+    <input type="hidden" id="map-lon" value="{{ longitud }}">
+
+    {# ── Pie: contador de resultados ───────────────────────── #}
+    <div class="map-card-footer">
+        <span id="map-results-count" class="map-results-badge">Buscando puntos…</span>
+        <span class="map-footer-note">Radio de búsqueda: 3 km</span>
+    </div>
+
+</div>{# /map-card #}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+(function () {
+    /* ── Coordenadas iniciales (desde Django o fallback SLO) ─ */
+    const latIni = parseFloat(document.getElementById('map-lat').value) || -26.3592;
+    const lonIni = parseFloat(document.getElementById('map-lon').value) || -52.8511;
+
+    /* ── Capas de teselas ─────────────────────────────────── */
+    const capaSatelite = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { attribution: 'Esri &mdash; Satélite', maxZoom: 19 }
+    );
+    const capaEtiquetas = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
+        { attribution: '&copy; CartoDB', maxZoom: 19 }
+    );
+    const capaCalles = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        { attribution: '&copy; CartoDB Voyager', maxZoom: 19 }
+    );
+
+    /* ── Inicializar mapa ─────────────────────────────────── */
+    const map = L.map('mapa-salud', {
+        center: [latIni, lonIni],
+        zoom: 14,
+        zoomControl: true,
+        layers: [capaSatelite, capaEtiquetas]   /* vista inicial: satélite */
+    });
+
+    /* Ocultar spinner cuando el mapa está listo */
+    map.on('load', () => {
+        document.getElementById('map-loading').style.display = 'none';
+    });
+    setTimeout(() => {
+        document.getElementById('map-loading').style.display = 'none';
+    }, 2500);
+
+    /* ── Iconos ───────────────────────────────────────────── */
+    const mkIcon = (color) => L.icon({
+        iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+        iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+    const IconoFarmacia  = mkIcon('blue');
+    const IconoSalud     = mkIcon('green');
+    const IconoUsuario   = mkIcon('red');
+
+    /* ── Capa activa (satélite por defecto) ───────────────── */
+    let capaActiva = 'satelite';
+    let grupoCapaBase = [capaSatelite, capaEtiquetas];
+
+    window.setLayer = function (tipo) {
+        if (tipo === capaActiva) return;
+        grupoCapaBase.forEach(c => map.removeLayer(c));
+
+        if (tipo === 'satelite') {
+            grupoCapaBase = [capaSatelite, capaEtiquetas];
+            document.getElementById('btn-satelite').classList.add('map-layer-btn--active');
+            document.getElementById('btn-calles').classList.remove('map-layer-btn--active');
+        } else {
+            grupoCapaBase = [capaCalles];
+            document.getElementById('btn-calles').classList.add('map-layer-btn--active');
+            document.getElementById('btn-satelite').classList.remove('map-layer-btn--active');
+        }
+        grupoCapaBase.forEach(c => c.addTo(map));
+        capaActiva = tipo;
+    };
+
+    /* ── Toast de notificación ────────────────────────────── */
+    function showToast(msg, tipo = 'info') {
+        const t = document.getElementById('map-toast');
+        t.textContent = msg;
+        t.className = `map-toast map-toast--${tipo} map-toast--visible`;
+        setTimeout(() => t.classList.remove('map-toast--visible'), 3500);
+    }
+
+    /* ── Geolocalización ──────────────────────────────────── */
+    let marcadorUsuario = null;
+    let circulo = null;
+
+    window.localizarUsuario = function () {
+        if (!navigator.geolocation) {
+            showToast('Tu navegador no soporta geolocalización.', 'error');
+            return;
+        }
+        showToast('Obteniendo ubicación…', 'info');
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const uLat = pos.coords.latitude;
+                const uLon = pos.coords.longitude;
+                const acc  = pos.coords.accuracy;
+
+                if (marcadorUsuario) map.removeLayer(marcadorUsuario);
+                if (circulo)         map.removeLayer(circulo);
+
+                circulo = L.circle([uLat, uLon], {
+                    radius: acc,
+                    color: '#3b82f6',
+                    fillColor: '#3b82f6',
+                    fillOpacity: 0.12,
+                    weight: 1.5
+                }).addTo(map);
+
+                marcadorUsuario = L.marker([uLat, uLon], { icon: IconoUsuario })
+                    .addTo(map)
+                    .bindPopup('<b>📍 Estás aquí</b><br><small>Precisión: ' + Math.round(acc) + ' m</small>')
+                    .openPopup();
+
+                map.flyTo([uLat, uLon], 16, { duration: 1.2 });
+                showToast('Ubicación encontrada. Buscando puntos…', 'success');
+                buscarPuntos(uLat, uLon);
+            },
+            () => {
+                showToast('No se pudo obtener tu ubicación. Revisa los permisos.', 'error');
+            },
+            { timeout: 10000 }
+        );
+    };
+
+    /* ── Búsqueda de puntos de salud (Overpass API) ───────── */
+    let capaPuntos = L.layerGroup().addTo(map);
+
+    async function buscarPuntos(lat, lon) {
+        document.getElementById('map-results-count').textContent = 'Buscando puntos…';
+        const query = `[out:json];(
+            node["amenity"~"pharmacy|hospital|health|clinic"](around:3000,${lat},${lon});
+            way["amenity"~"pharmacy|hospital|health|clinic"](around:3000,${lat},${lon});
+        );out center;`;
+        const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
+
+        try {
+            const res  = await fetch(url);
+            const data = await res.json();
+            capaPuntos.clearLayers();
+            let count = 0;
+
+            data.elements.forEach(p => {
+                const pLat = p.lat ?? p.center?.lat;
+                const pLon = p.lon ?? p.center?.lon;
+                if (!pLat || !pLon) return;
+
+                const esFarmacia = p.tags.amenity === 'pharmacy';
+                const icon   = esFarmacia ? IconoFarmacia : IconoSalud;
+                const nombre = p.tags.name || (esFarmacia ? 'Farmacia' : 'Punto de Salud');
+                const tipo   = esFarmacia ? '💊 Farmacia' : '🏥 Salud';
+                const addr   = [p.tags['addr:street'], p.tags['addr:housenumber']]
+                                .filter(Boolean).join(', ') || 'Dirección no disponible';
+
+                L.marker([pLat, pLon], { icon })
+                    .addTo(capaPuntos)
+                    .bindPopup(
+                        `<div style="font-family:'Segoe UI',sans-serif;min-width:160px;">
+                            <strong style="color:#334155;font-size:0.95rem;">${nombre}</strong><br>
+                            <span style="color:#3b82f6;font-size:0.8rem;">${tipo}</span><br>
+                            <span style="color:#64748b;font-size:0.78rem;">📍 ${addr}</span>
+                        </div>`
+                    );
+                count++;
+            });
+
+            const badge = document.getElementById('map-results-count');
+            badge.textContent = count > 0
+                ? `${count} punto${count !== 1 ? 's' : ''} encontrado${count !== 1 ? 's' : ''}`
+                : 'Sin resultados en el área';
+            badge.className = count > 0 ? 'map-results-badge map-results-badge--ok' : 'map-results-badge map-results-badge--empty';
+
+        } catch (e) {
+            document.getElementById('map-results-count').textContent = 'Error al cargar puntos';
+            showToast('No se pudo conectar con la fuente de datos.', 'error');
+            console.error('Overpass error:', e);
+        }
+    }
+
+    /* Carga inicial con coordenadas de Django */
+    buscarPuntos(latIni, lonIni);
+
+})();
+</script>

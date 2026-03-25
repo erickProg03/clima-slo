@@ -1,0 +1,4 @@
+db.sqlite3
+start_ngrok.py
+.env
+__pycache__

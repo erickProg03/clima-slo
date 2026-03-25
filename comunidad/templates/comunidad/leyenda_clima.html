@@ -1,0 +1,192 @@
+{% load static %}
+
+<div class="legend-card">
+
+    {# ── Botón toggle (Bootstrap Collapse) ─────────────────── #}
+    <button class="legend-toggle"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#legendContent"
+            aria-expanded="false"
+            aria-controls="legendContent">
+        <span class="legend-toggle-left">
+            <span class="legend-toggle-icon">📖</span>
+            Guía de términos
+        </span>
+        <span class="legend-chevron">&#8964;</span>
+    </button>
+
+    <div class="collapse" id="legendContent">
+        <div class="legend-body">
+            
+            <p class="legend-group-label">Condiciones atmosféricas</p>
+
+            <div class="legend-grid">
+
+                <div class="legend-item">
+                    <span class="legend-icon">🌡️</span>
+                    <div class="legend-text">
+                        <strong>Temperatura (°C)</strong>
+                        <span>
+                            Grados Celsius del aire medidos a la sombra, a 2 m del suelo.
+                            Es la temperatura real del ambiente exterior.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-icon">🫧</span>
+                    <div class="legend-text">
+                        <strong>Sensación térmica (°C)</strong>
+                        <span>
+                            Temperatura percibida por el cuerpo humano combinando
+                            calor real, velocidad del viento y humedad relativa.
+                            Puede diferir bastante de la temperatura real.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-icon">💧</span>
+                    <div class="legend-text">
+                        <strong>Humedad (%)</strong>
+                        <span>
+                            Porcentaje de vapor de agua presente en el aire.
+                            Valores &gt; 70 % se consideran altos y pueden
+                            generar sensación de bochorno o sofoco.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-icon">💨</span>
+                    <div class="legend-text">
+                        <strong>Viento (m/s)</strong>
+                        <span>
+                            Velocidad del viento en metros por segundo.
+                            Referencia: 1 m/s ≈ 3.6 km/h.
+                            Vientos &gt; 10 m/s son considerados fuertes.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-icon">⏲️</span>
+                    <div class="legend-text">
+                        <strong>Presión atmosférica (hPa)</strong>
+                        <span>
+                            Fuerza que ejerce el aire sobre la superficie, medida en
+                            hectopascales. El valor estándar al nivel del mar es 1013 hPa.
+                            Presiones bajas suelen anticipar lluvia; altas, cielo despejado.
+                        </span>
+                    </div>
+                </div>
+
+            </div>{# /legend-grid #}
+
+            <div class="legend-divider"></div>
+
+
+            <p class="legend-group-label">Calidad del aire</p>
+
+            <div class="legend-grid">
+
+                <div class="legend-item">
+                    <span class="legend-icon">🔵</span>
+                    <div class="legend-text">
+                        <strong>PM2.5 (µg/m³)</strong>
+                        <span>
+                            Partículas en suspensión de diámetro ≤ 2.5 micrómetros —
+                            tan pequeñas que penetran profundamente en los pulmones
+                            y pueden pasar al torrente sanguíneo.
+                            La OMS recomienda &lt; 15 µg/m³ como media diaria.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-icon">🟤</span>
+                    <div class="legend-text">
+                        <strong>PM10 (µg/m³)</strong>
+                        <span>
+                            Partículas en suspensión de diámetro ≤ 10 micrómetros
+                            (polvo, polen, cenizas, humo grueso). Afectan las vías
+                            respiratorias superiores. La OMS recomienda &lt; 45 µg/m³
+                            como media diaria.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-icon">📊</span>
+                    <div class="legend-text">
+                        <strong>Barra de progreso PM2.5</strong>
+                        <span>
+                            Representa visualmente el nivel actual de PM2.5 en relación
+                            al umbral máximo recomendado.
+                        </span>
+                    </div>
+                    {# Mini barra visual de referencia #}
+                    <div class="legend-bar-ref" aria-hidden="true">
+                        <div class="legend-bar-ref-track">
+                            <div class="legend-bar-ref-fill legend-bar-ref-fill--safe"    style="width: 30%;"></div>
+                        </div>
+                        <span>Seguro</span>
+                        <div class="legend-bar-ref-track">
+                            <div class="legend-bar-ref-fill legend-bar-ref-fill--moderate" style="width: 65%;"></div>
+                        </div>
+                        <span>Moderado</span>
+                        <div class="legend-bar-ref-track">
+                            <div class="legend-bar-ref-fill legend-bar-ref-fill--danger"   style="width: 95%;"></div>
+                        </div>
+                        <span>Peligroso</span>
+                    </div>
+                </div>
+
+            </div>{# /legend-grid #}
+
+            <div class="legend-divider"></div>
+
+            <p class="legend-group-label">Niveles de riesgo para la salud</p>
+
+            <div class="legend-risk-table">
+
+                <div class="legend-risk-row">
+                    <span class="legend-risk-dot legend-risk-dot--bajo" aria-label="Verde — Bajo"></span>
+                    <div>
+                        <strong>Bajo</strong>
+                        <span>
+                            Condiciones seguras para toda la población.
+                            Actividad al aire libre sin restricciones.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="legend-risk-row">
+                    <span class="legend-risk-dot legend-risk-dot--moderado" aria-label="Amarillo — Moderado"></span>
+                    <div>
+                        <strong>Moderado</strong>
+                        <span>
+                            Personas sensibles (niños, ancianos, asmáticos) deben
+                            reducir la exposición prolongada al exterior.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="legend-risk-row">
+                    <span class="legend-risk-dot legend-risk-dot--alto" aria-label="Rojo — Alto"></span>
+                    <div>
+                        <strong>Alto</strong>
+                        <span>
+                            Se recomienda evitar actividades físicas intensas al exterior.
+                            Usar mascarilla si es necesario salir. Mantener ventanas cerradas.
+                        </span>
+                    </div>
+                </div>
+
+            </div>{# /legend-risk-table #}
+
+        </div>{# /legend-body #}
+    </div>{# /collapse #}
+
+</div>{# /legend-card #}

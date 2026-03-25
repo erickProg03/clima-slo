@@ -1,0 +1,84 @@
+{% load static %}
+
+<footer class="site-footer">
+    <div class="container">
+
+        {# ── Fila principal ──────────────────────────────── #}
+        <div class="row gy-4 footer-main">
+
+            {# Columna 1 — Marca #}
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="footer-brand">
+                    <img src="{% static 'comunidad/imagenes/clima_slo_logo.webp' %}"
+                         alt="Clima SLO logo"
+                         class="footer-logo">
+                    <h2 class="footer-brand-name">Clima SLO</h2>
+                    <p class="footer-tagline">
+                        Proyecto universitario — Ingeniería de Software
+                    </p>
+                    <p class="footer-university">
+                        <span class="footer-university-icon">🎓</span>
+                        Universidade Cruzeiro do Sul
+                    </p>
+                </div>
+            </div>
+            {# Columna 2 — Enlaces #}
+            <div class="col-12 col-sm-6 col-lg-3">
+                <h3 class="footer-heading">Redes Sociais</h3>
+                <ul class="footer-links">
+                    <li><a href="https://github.com" target="_blank">GitHub</a></li>
+                </ul>
+            </div>
+
+            {# Columna 3 — Contacto #}
+            <div class="col-12 col-sm-6 col-lg-3">
+                <h3 class="footer-heading">Contacto</h3>
+                <ul class="footer-contact">
+                    <li>
+                        <span class="footer-contact-icon">✉️</span>
+                        <a href="mailto:erickmarquez.informatica@gmail.com">
+                            erickmarquez.informatica@gmail.com
+                        </a>
+                    </li>
+                    <li>
+                        <span class="footer-contact-icon">📍</span>
+                        Santa Catarina, Brasil
+                    </li>
+                    <li>
+                        <span class="footer-contact-icon">💻</span>
+                        Ing. de Software — 2026
+                    </li>
+                </ul>
+
+                {# Badges de tecnología #}
+                <div class="footer-tech-badges">
+                    <span class="tech-badge">Django</span>
+                    <span class="tech-badge">Bootstrap 5</span>
+                    <span class="tech-badge">Python</span>
+                </div>
+            </div>
+
+        </div>
+        {# ── /Fila principal ─────────────────────────────── #}
+
+        {# ── Divisor ─────────────────────────────────────── #}
+        <div class="footer-divider"></div>
+
+        {# ── Barra inferior ──────────────────────────────── #}
+        <div class="footer-bottom row align-items-center gy-2">
+            <div class="col-12 col-md-6 text-center text-md-start">
+                <p class="footer-copyright">
+                    © {% now "Y" %} Clima SLO · Proyecto académico
+                    <span class="footer-heart">♥</span>
+                </p>
+            </div>
+            <div class="col-12 col-md-6 text-center text-md-end">
+                <p class="footer-credits">
+                    Hecho con
+                    <span class="footer-stack">Django · OpenWeather · Bootstrap</span>
+                </p>
+            </div>
+        </div>
+
+    </div>
+</footer>
