@@ -1,0 +1,274 @@
+/* =============================================
+   footer.css
+   Estilos para el footer del proyecto
+   Universidade Cruzeiro do Sul — Ing. Software
+   ============================================= */
+
+/* ── Variables (mismas que clima_comunitario) ─ */
+:root {
+    --footer-bg:          #1e293b;   /* azul pizarra oscuro */
+    --footer-bg-deeper:   #0f172a;   /* barra inferior */
+    --footer-text:        #cbd5e1;   /* texto base */
+    --footer-text-muted:  #64748b;   /* textos secundarios */
+    --footer-heading:     #f1f5f9;   /* títulos de columna */
+    --footer-accent:      #3b82f6;   /* azul marca */
+    --footer-accent-glow: rgba(59, 130, 246, 0.15);
+    --footer-divider:     rgba(255, 255, 255, 0.07);
+    --footer-link-hover:  #93c5fd;   /* azul claro hover */
+    --footer-logo-size:   44px;
+    --footer-radius:      8px;
+    --footer-transition:  0.22s ease;
+}
+
+/* ── Contenedor general ─────────────────────── */
+.site-footer {
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
+    padding: 3rem 0 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.9rem;
+    margin-top: auto;           /* empuja el footer al fondo si usas flex en body */
+}
+
+/* ── Sección principal ──────────────────────── */
+.footer-main {
+    padding-bottom: 2rem;
+}
+
+/* ── Columna Marca ──────────────────────────── */
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.footer-logo {
+    width: var(--footer-logo-size);
+    height: var(--footer-logo-size);
+    border-radius: var(--footer-radius);
+    object-fit: cover;
+    box-shadow: 0 0 0 2px var(--footer-accent-glow);
+}
+
+.footer-brand-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--footer-heading);
+    margin: 0;
+}
+
+.footer-tagline {
+    color: var(--footer-text-muted);
+    font-size: 0.8rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.footer-university {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--footer-link-hover);
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin: 0.25rem 0 0;
+}
+
+.footer-university-icon {
+    font-size: 1rem;
+}
+
+/* ── Headings de columna ────────────────────── */
+.footer-heading {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--footer-heading);
+    margin-bottom: 1rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.footer-heading::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 24px;
+    height: 2px;
+    background-color: var(--footer-accent);
+    border-radius: 2px;
+}
+
+/* ── Listas de navegación ───────────────────── */
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.footer-links a {
+    color: var(--footer-text);
+    text-decoration: none;
+    transition: color var(--footer-transition), padding-left var(--footer-transition);
+    display: inline-block;
+}
+
+.footer-links a:hover {
+    color: var(--footer-link-hover);
+    padding-left: 6px;
+}
+
+/* ── Lista de contacto ──────────────────────── */
+.footer-contact {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.footer-contact li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    line-height: 1.4;
+}
+
+.footer-contact-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.footer-contact a {
+    color: var(--footer-text);
+    text-decoration: none;
+    word-break: break-word;
+    transition: color var(--footer-transition);
+}
+
+.footer-contact a:hover {
+    color: var(--footer-link-hover);
+}
+
+/* ── Badges de tecnología ───────────────────── */
+.footer-tech-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.tech-badge {
+    background-color: var(--footer-accent-glow);
+    color: var(--footer-link-hover);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+    transition: background-color var(--footer-transition);
+}
+
+.tech-badge:hover {
+    background-color: rgba(59, 130, 246, 0.25);
+}
+
+/* ── Divisor ────────────────────────────────── */
+.footer-divider {
+    border-top: 1px solid var(--footer-divider);
+    margin-bottom: 0;
+}
+
+/* ── Barra inferior ─────────────────────────── */
+.footer-bottom {
+    background-color: var(--footer-bg-deeper);
+    padding: 1rem 0;
+    margin-left: calc(-0.5 * var(--bs-gutter-x, 1.5rem));
+    margin-right: calc(-0.5 * var(--bs-gutter-x, 1.5rem));
+    padding-left: calc(0.5 * var(--bs-gutter-x, 1.5rem));
+    padding-right: calc(0.5 * var(--bs-gutter-x, 1.5rem));
+}
+
+.footer-copyright,
+.footer-credits {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--footer-text-muted);
+}
+
+.footer-heart {
+    color: #ef4444;
+    font-size: 0.85rem;
+}
+
+.footer-stack {
+    color: var(--footer-link-hover);
+    font-weight: 600;
+}
+
+/* ── Responsividad ──────────────────────────── */
+
+/* Tablet (≤768px) */
+@media (max-width: 768px) {
+    .site-footer {
+        padding-top: 2.5rem;
+    }
+
+    .footer-heading::after {
+        /* centrar el subrayado si las columnas se apilan */
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .footer-heading {
+        text-align: center;
+    }
+
+    .footer-links,
+    .footer-contact {
+        align-items: center;
+    }
+
+    .footer-contact li {
+        justify-content: center;
+    }
+
+    .footer-tech-badges {
+        justify-content: center;
+    }
+
+    .footer-brand {
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-university {
+        justify-content: center;
+    }
+}
+
+/* Mobile (≤480px) */
+@media (max-width: 480px) {
+    .site-footer {
+        padding-top: 2rem;
+    }
+
+    .footer-brand-name {
+        font-size: 1rem;
+    }
+
+    .footer-bottom {
+        text-align: center;
+    }
+
+    .footer-bottom .text-md-end {
+        text-align: center !important;
+    }
+}

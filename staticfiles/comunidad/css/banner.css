@@ -1,0 +1,97 @@
+.base-container .slider-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.base-container .slider-container-fondo {
+    background-color: #003366;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.base-container .slider {
+    display: flex;
+    width: 200%;
+    animation: slide 24s infinite linear;
+}
+
+.base-container .slide {
+    display: flex;
+    align-items: center;
+    width: 50%;
+    position: relative;
+}
+
+.base-container .promo-text {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.base-container .promo-text h3 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.base-container .promo-text p {
+    margin: 5px 0 0;
+    font-size: 16px;
+    color: #777;
+}
+
+#promo-image1,
+#promo-image2,
+#promo-image3 {
+    width: 40%; /* Ancho para pantallas grandes */
+    border-radius: 10px;
+    box-shadow: 0 2 10px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes slide {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.base-container .slider img {
+    max-height: 100px;
+    max-width: 100px;
+}
+
+/* Media queries para hacer el diseño responsivo */
+@media (max-width: 768px) {
+    #promo-image1,
+    #promo-image2,
+    #promo-image3 {
+        width: 70%; /* Ancho para tablets */
+    }
+
+    .base-container .promo-text h3 {
+        font-size: 20px; /* Tamaño de fuente más pequeño para h3 */
+    }
+
+    .base-container .promo-text p {
+        font-size: 14px; /* Tamaño de fuente más pequeño para párrafos */
+    }
+}
+
+@media (max-width: 480px) {
+    #promo-image1,
+    #promo-image2,
+    #promo-image3 {
+        width: 90%; /* Ancho para teléfonos */
+    }
+
+    .base-container .promo-text h3 {
+        font-size: 18px; /* Tamaño de fuente más pequeño para h3 */
+    }
+
+    .base-container .promo-text p {
+        font-size: 12px; /* Tamaño de fuente más pequeño para párrafos */
+    }
+}
