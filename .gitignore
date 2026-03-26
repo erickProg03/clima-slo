@@ -2,3 +2,4 @@ db.sqlite3
 start_ngrok.py
 .env
 __pycache__
+core/configuracion_produccion.py
