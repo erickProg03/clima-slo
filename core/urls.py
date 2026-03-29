@@ -20,4 +20,5 @@ from comunidad import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.ver_clima_comunitario, name='home'),
+    path('subir_producto/', views.subir_producto, name='subir_producto'),
 ]
