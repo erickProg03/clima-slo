@@ -1,97 +1,12 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-
-# Create your views here.
-def home(request):
-    return HttpResponse("Hello World")
-import requests
-from django.shortcuts import render
-from django.conf import settings
-from datetime import datetime # Para convertir la hora
-
-def ver_clima(request):
-    api_key = settings.OPENWEATHER_API_KEY
-    lat, lon = -26.3592, -52.8511
-    url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=es"
-    
-    try:
-        response = requests.get(url)
-        datos = response.json()
-        
-        if response.status_code == 200:
-            # Conversión de horas UNIX a formato legible (HH:MM)
-            sunrise = datetime.fromtimestamp(datos['sys']['sunrise']).strftime('%H:%M')
-            sunset = datetime.fromtimestamp(datos['sys']['sunset']).strftime('%H:%M')
-            
-            contexto = {
-                'ok': True,
-                'ciudad': "São Lourenço do Oeste",
-                'temperatura': datos['main'].get('temp'),
-                'feels_like': datos['main'].get('feels_like'), # SENSACIÓN TÉRMICA
-                'min': datos['main'].get('temp_min'),
-                'max': datos['main'].get('temp_max'),
-                'presion': datos['main'].get('pressure'),     # PRESIÓN hPa
-                'humedad': datos['main'].get('humidity'),
-                'visibilidad': datos.get('visibility') / 1000, # Convertir a KM
-                'viento': datos['wind'].get('speed'),
-                'nubes': datos['clouds'].get('all'),          # % de NUBOSIDAD
-                'amanecer': sunrise,
-                'atardecer': sunset,
-                'descripcion': datos['weather'][0].get('description'),
-                'icono': datos['weather'][0].get('icon'),
-                'latitud': lat,
-                'longitud': lon,
-            }
-        else:
-            contexto = {'ok': False, 'error_msg': datos.get('message')}
-    except Exception:
-        contexto = {'ok': False, 'error_msg': "Error de conexión"}
-
-    return render(request, 'comunidad/clima.html', contexto)
-
-def air_quality_view(request):
-    api_key = settings.OPENWEATHER_API_KEY
-    lat, lon = -26.3592, -52.8511
-    url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={api_key}"
-
-    # Diccionario para interpretar el índice AQI
-    AQI_MAP = {
-        1: {'texto': 'Excelente', 'color': '#2ecc71'},
-        2: {'texto': 'Bueno', 'color': '#f1c40f'},
-        3: {'texto': 'Moderado', 'color': '#e67e22'},
-        4: {'texto': 'Pobre', 'color': '#e74c3c'},
-        5: {'texto': 'Muy Pobre', 'color': '#8e44ad'},
-    }
-
-    try:
-        response = requests.get(url).json()
-        raw_aqi = response['list'][0]['main']['aqi']
-        componentes = response['list'][0]['components']
-        
-        context = {
-            'aqi_num': raw_aqi,
-            'aqi_info': AQI_MAP.get(raw_aqi),
-            'pm25': componentes['pm2_5'],
-            'pm10': componentes['pm10'],
-            'co': componentes['co'],
-            'o3': componentes['o3'],
-        }
-    except Exception:
-        context = {'error': "Error al conectar con el servicio de monitoreo."}
-
-    return render(request, 'comunidad/air_quality.html', context)
-
-def mapa_comunidad(request):
-    return render(request, 'comunidad/mapa_libre.html', {
-        'lat': -26.3592,
-        'lon': -52.8511,
-    })
 
 import requests
 from datetime import datetime
 from django.shortcuts import render
 from django.conf import settings
 from datetime import datetime
+
+from django.shortcuts import render, redirect
+from .models import Producto
 
 def ver_clima_comunitario(request):
     api_key = settings.OPENWEATHER_API_KEY
@@ -197,3 +112,15 @@ def ver_clima_comunitario(request):
         contexto = {'ok': False, 'error_msg': f"Error técnico: {str(e)}"}
 
     return render(request, 'comunidad/clima_comunitario.html', contexto)
+
+def subir_producto(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        desc = request.POST.get('descripcion')
+        img = request.FILES.get('imagen') # Importante usar request.FILES
+        
+        Producto.objects.create(nombre=nombre, descripcion=desc, imagen=img)
+        return redirect('subir_producto')
+    
+    productos = Producto.objects.all()
+    return render(request, 'comunidad/upload.html', {'productos': productos})

@@ -138,3 +138,27 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+import os
+
+# ... otras configuraciones ...
+
+# Detectar si estamos en producción (Render define esta variable por defecto)
+
+
+if DEBUG is False:
+    # Configuración para PRODUCCIÓN (Cloudinary)
+    INSTALLED_APPS.insert(0, 'cloudinary_storage') # Debe ir antes de staticfiles
+    INSTALLED_APPS.append('cloudinary')
+
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+    }
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+else:
+    # Configuración para DESARROLLO (Local)
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

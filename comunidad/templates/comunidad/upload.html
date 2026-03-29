@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Subir Nuevo Producto</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="text" name="nombre" placeholder="Nombre" required><br><br>
+        <textarea name="descripcion" placeholder="Descripción"></textarea><br><br>
+        <input type="file" name="imagen" accept="image/*" required><br><br>
+        <button type="submit">Guardar en la Nube</button>
+    </form>
+
+    <hr>
+    <h3>Productos subidos:</h3>
+    {% for p in productos %}
+        <div>
+            <p><strong>{{ p.nombre }}</strong></p>
+            <img src="{{ p.imagen.url }}" width="200">
+        </div>
+    {% endfor %}
+</body>
+</html>
