@@ -117,10 +117,17 @@ def subir_producto(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
         desc = request.POST.get('descripcion')
-        img = request.FILES.get('imagen') # Importante usar request.FILES
+        img = request.FILES.get('imagen')
         
-        Producto.objects.create(nombre=nombre, descripcion=desc, imagen=img)
-        return redirect('subir_producto')
+        if img:
+            nuevo_producto = Producto(nombre=nombre, descripcion=desc, imagen=img)
+            nuevo_producto.save() # .save() asegura la activación del storage de Cloudinary
+            return redirect('subir_producto')
     
     productos = Producto.objects.all()
     return render(request, 'comunidad/upload.html', {'productos': productos})
+
+def galeria_imagenes(request):
+    # Traemos todos los productos ordenados por el más reciente
+    productos = Producto.objects.all().order_by('-id')
+    return render(request, 'comunidad/galeria.html', {'productos': productos})

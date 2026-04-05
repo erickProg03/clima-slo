@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Productos | Cloudinary</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .img-container {
+            height: 200px;
+            overflow: hidden;
+        }
+        .img-container img {
+            object-fit: cover;
+            height: 100%;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+        .card:hover .img-container img {
+            transform: scale(1.1); /* Efecto de zoom al pasar el mouse */
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold text-primary">Galería de Imágenes</h1>
+            <p class="text-muted">Archivos alojados de forma segura en Cloudinary</p>
+        </div>
+        <a href="{% url 'subir_producto' %}" class="btn btn-success px-4 rounded-pill shadow-sm">
+            + Subir Nuevo
+        </a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        {% for p in productos %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="img-container">
+                    <img src="{{ p.imagen.url }}" class="card-img-top" alt="{{ p.nombre }}">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title fw-bold text-dark">{{ p.nombre }}</h5>
+                    <p class="card-text text-secondary small">{{ p.descripcion|truncatechars:80 }}</p>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3">
+                    <div class="d-grid">
+                        <a href="{{ p.imagen.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            Ver Original ↗
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5 bg-white rounded shadow-sm">
+                <h3 class="text-muted">No hay imágenes en la nube aún.</h3>
+                <p>¡Usa el botón de arriba para subir la primera!</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
