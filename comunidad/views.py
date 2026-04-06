@@ -5,9 +5,6 @@ from django.shortcuts import render
 from django.conf import settings
 from datetime import datetime
 
-from django.shortcuts import render, redirect
-from .models import Producto
-
 def ver_clima_comunitario(request):
     api_key = settings.OPENWEATHER_API_KEY
     lat, lon = -26.3592, -52.8511
@@ -42,41 +39,41 @@ def ver_clima_comunitario(request):
             # 1. LÓGICA DE TEMPERATURA Y VESTIMENTA (Ajustada a frío de SC)
             if st < 5:
                 riesgo = "Alto"; color_alerta = "danger"
-                consejos.append("Frío Extremo: Riesgo de hipotermia. Limita tiempo fuera.")
+                consejos.append("Frio Extremo: Risco de hipotermia. Limite o tempo ao ar livre.")
             elif 5 <= st < 13:
                 riesgo = "Moderado"; color_alerta = "warning"
-                consejos.append("Frío Intenso: Usa ropa térmica y protege nariz/boca.")
+                consejos.append("Frio Intenso: Use roupas térmicas e proteja nariz e boca.")
             elif 13 <= st < 18:
-                consejos.append("Clima Fresco: Una chaqueta abrigada es suficiente.")
+                consejos.append("Clima Fresco: Uma jaqueta reforçada é suficiente.")
             elif st >= 30:
                 riesgo = "Moderado"; color_alerta = "warning"
-                consejos.append("Calor: Riesgo de deshidratación. Bebe agua constante.")
+                consejos.append("Calor: Risco de desidratação. Beba água constantemente.")
 
-            # 2. LÓGICA DE VIENTO Y SENSACIÓN TÉRMICA
+            # 2. LÓGICA DE VENTO E SENSAÇÃO TÉRMICA
             if viento_kmh > 30:
                 riesgo = "Moderado"
-                consejos.append(f"Viento Fuerte ({round(viento_kmh)} km/h): Asegura objetos sueltos.")
+                consejos.append(f"Vento Forte ({round(viento_kmh)} km/h): Cuidado com objetos soltos.")
             elif viento_kmh > 15 and st < 15:
-                consejos.append("Efecto Chill: El viento aumenta el frío. Abrígate más.")
+                consejos.append("Efeito Chill: O vento aumenta a sensação de frio. Agasalhe-se bem.")
 
-            # 3. LÓGICA DE HUMEDAD (Salud Respiratoria)
+            # 3. LÓGICA DE UMIDADE (Saúde Respiratória)
             if humedad < 30:
-                consejos.append("Aire Seco: Hidrata tu nariz y bebe mucha agua.")
+                consejos.append("Ar Seco: Hidrate o nariz e beba muita água.")
             elif humedad > 85:
-                consejos.append("Humedad Alta: Ventila ambientes para evitar moho.")
+                consejos.append("Umidade Alta: Ventile os ambientes para evitar mofo.")
 
-            # 4. PRESIÓN (Alerta de Tormenta)
+            # 4. PRESSÃO (Alerta de Tempestade)
             if presion < 1005:
-                consejos.append("Presión Baja: El tiempo puede volverse inestable pronto.")
+                consejos.append("Pressão Baixa: O tempo pode ficar instável em breve.")
 
-            # 5. CALIDAD DEL AIRE (Expert Mode - Estándar OMS)
+            # 5. QUALIDADE DO AR (Expert Mode - Padrão OMS)
             if pm25 > 15:
-                aire_estado, aire_color = "Malo", "danger"
+                aire_estado, aire_color = "Ruim", "danger"
                 riesgo, color_alerta = "Alto", "danger"
-                consejos.append("Calidad Aire: Nociva. Grupos sensibles deben quedarse en casa.")
+                consejos.append("Qualidade do Ar: Nociva. Grupos sensíveis devem ficar em casa.")
             elif pm25 > 5:
-                aire_estado, aire_color = "Moderado", "warning"
-                consejos.append("Calidad Aire: Regular. Evita ejercicio intenso al aire libre.")
+                aire_estado, aire_color = "Moderada", "warning"
+                consejos.append("Qualidade do Ar: Regular. Evite exercícios intensos ao ar livre.")
             else:
                 aire_estado, aire_color = "Excelente", "success"
 
@@ -112,22 +109,3 @@ def ver_clima_comunitario(request):
         contexto = {'ok': False, 'error_msg': f"Error técnico: {str(e)}"}
 
     return render(request, 'comunidad/clima_comunitario.html', contexto)
-
-def subir_producto(request):
-    if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        desc = request.POST.get('descripcion')
-        img = request.FILES.get('imagen')
-        
-        if img:
-            nuevo_producto = Producto(nombre=nombre, descripcion=desc, imagen=img)
-            nuevo_producto.save() # .save() asegura la activación del storage de Cloudinary
-            return redirect('subir_producto')
-    
-    productos = Producto.objects.all()
-    return render(request, 'comunidad/upload.html', {'productos': productos})
-
-def galeria_imagenes(request):
-    # Traemos todos los productos ordenados por el más reciente
-    productos = Producto.objects.all().order_by('-id')
-    return render(request, 'comunidad/galeria.html', {'productos': productos})
