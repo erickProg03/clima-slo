@@ -17,7 +17,7 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_728x00&_v-a!=ewo5ow=dv(fb8_!esx5q5@+l=zn)%pg5s+)*'
+SECRET_KEY = SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
