@@ -64,9 +64,8 @@
     </div>
 
     {# Coordenadas pasadas desde Django #}
-    <input type="hidden" id="map-lat" value="{{ latitud }}">
-    <input type="hidden" id="map-lon" value="{{ longitud }}">
-
+    <input type="hidden" id="map-lat" value="{{ latitud|stringformat:'.6f' }}">
+    <input type="hidden" id="map-lon" value="{{ longitud|stringformat:'.6f' }}">
     {# ── Pie: contador de resultados ───────────────────────── #}
     <div class="map-card-footer">
         <span id="map-results-count" class="map-results-badge">Buscando puntos…</span>
