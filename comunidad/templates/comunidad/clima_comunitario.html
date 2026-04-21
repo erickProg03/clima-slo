@@ -123,7 +123,7 @@
 
                 </div>{# /weather-card #}
                 {% include 'comunidad/leyenda_clima.html' %}
-                {% include 'comunidad/mapa_salud.html' %}
+                {% include 'comunidad/mapa_salud.html' with latitud=latitud longitud=longitud %}
                 {% else %}
 
                 {# ── Estado de error ───────────────────────── #}
