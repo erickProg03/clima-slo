@@ -198,57 +198,79 @@
         );
     };
 
-    /* ── Búsqueda de puntos de salud (Overpass API) ───────── */
+/* ── Búsqueda de puntos de salud (Overpass API) OPTIMIZADA ── */
     let capaPuntos = L.layerGroup().addTo(map);
 
     async function buscarPuntos(lat, lon) {
-        document.getElementById('map-results-count').textContent = 'Buscando puntos…';
-        const query = `[out:json];(
-            node["amenity"~"pharmacy|hospital|health|clinic"](around:3000,${lat},${lon});
-            way["amenity"~"pharmacy|hospital|health|clinic"](around:3000,${lat},${lon});
-        );out center;`;
-        const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
+        const badge = document.getElementById('map-results-count');
+        badge.textContent = 'Buscando puntos...';
+        badge.className = 'map-results-badge'; // Reset clase
+        
+        // 1. Usamos ~"..." para buscar múltiples tipos a la vez y añadimos timeout
+        // 2. Filtramos solo por nodos y centros de caminos para mayor velocidad
+        const query = `[out:json][timeout:15];
+        (
+        node["amenity"~"pharmacy|hospital|health|clinic|doctors"](around:3500,${lat},${lon});
+        way["amenity"~"pharmacy|hospital|health|clinic|doctors"](around:3500,${lat},${lon});
+        );
+        out center;`;
+
+        // Usamos una instancia alternativa más estable para produccion
+        const url = 'https://overpass.kumi.systems/api/interpreter?data=' + encodeURIComponent(query);
 
         try {
-            const res  = await fetch(url);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 12000); // Timeout de 12s
+
+            const res = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            
             const data = await res.json();
             capaPuntos.clearLayers();
             let count = 0;
 
-            data.elements.forEach(p => {
-                const pLat = p.lat ?? p.center?.lat;
-                const pLon = p.lon ?? p.center?.lon;
-                if (!pLat || !pLon) return;
+            if (data.elements && data.elements.length > 0) {
+                data.elements.forEach(p => {
+                    const pLat = p.lat ?? p.center?.lat;
+                    const pLon = p.lon ?? p.center?.lon;
+                    if (!pLat || !pLon) return;
 
-                const esFarmacia = p.tags.amenity === 'pharmacy';
-                const icon   = esFarmacia ? IconoFarmacia : IconoSalud;
-                const nombre = p.tags.name || (esFarmacia ? 'Farmacia' : 'Punto de Salud');
-                const tipo   = esFarmacia ? '💊 Farmacia' : '🏥 Salud';
-                const addr   = [p.tags['addr:street'], p.tags['addr:housenumber']]
-                                .filter(Boolean).join(', ') || 'Dirección no disponible';
+                    const amenity = p.tags.amenity;
+                    const esFarmacia = amenity === 'pharmacy';
+                    const icon = esFarmacia ? IconoFarmacia : IconoSalud;
+                    
+                    // Mapeo de nombres más amigable para el usuario
+                    const nombre = p.tags.name || (esFarmacia ? 'Farmacia' : 'Centro de Salud');
+                    const tipo = esFarmacia ? '💊 Farmacia' : '🏥 Servicio Médico';
+                    const addr = [p.tags['addr:street'], p.tags['addr:housenumber']].filter(Boolean).join(', ') || 'Dirección no disponible';
 
-                L.marker([pLat, pLon], { icon })
-                    .addTo(capaPuntos)
-                    .bindPopup(
-                        `<div style="font-family:'Segoe UI',sans-serif;min-width:160px;">
-                            <strong style="color:#334155;font-size:0.95rem;">${nombre}</strong><br>
-                            <span style="color:#3b82f6;font-size:0.8rem;">${tipo}</span><br>
-                            <span style="color:#64748b;font-size:0.78rem;">📍 ${addr}</span>
-                        </div>`
-                    );
-                count++;
-            });
+                    L.marker([pLat, pLon], { icon })
+                        .addTo(capaPuntos)
+                        .bindPopup(`
+                            <div style="font-family: sans-serif; min-width:160px;">
+                                <strong style="color:#1e293b;">${nombre}</strong><br>
+                                <span style="color:#2563eb; font-size:0.85em;">${tipo}</span><br>
+                                <small style="color:#64748b;">📍 ${addr}</small>
+                            </div>
+                        `);
+                    count++;
+                });
+            }
 
-            const badge = document.getElementById('map-results-count');
-            badge.textContent = count > 0
-                ? `${count} punto${count !== 1 ? 's' : ''} encontrado${count !== 1 ? 's' : ''}`
-                : 'Sin resultados en el área';
+            badge.textContent = count > 0 ? `${count} puntos encontrados` : 'Sin puntos en 3.5km';
             badge.className = count > 0 ? 'map-results-badge map-results-badge--ok' : 'map-results-badge map-results-badge--empty';
 
         } catch (e) {
-            document.getElementById('map-results-count').textContent = 'Error al cargar puntos';
-            showToast('No se pudo conectar con la fuente de datos.', 'error');
-            console.error('Overpass error:', e);
+            console.error('Error Overpass:', e);
+            badge.textContent = 'Reintentando carga...';
+            // Reintento automático simple tras 3 segundos si falla la primera vez
+            if (e.name === 'AbortError' || e.message.includes('HTTP')) {
+                setTimeout(() => buscarPuntos(lat, lon), 3000);
+            } else {
+                badge.textContent = 'Error al cargar puntos';
+            }
         }
     }
 
